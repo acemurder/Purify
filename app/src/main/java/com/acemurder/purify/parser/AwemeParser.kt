@@ -1,7 +1,9 @@
 package com.acemurder.purify.parser
 
+import com.acemurder.purify.AWEME_URL
 import com.acemurder.purify.model.VideoInfo
-import okhttp3.OkHttpClient
+import com.acemurder.purify.purifyClient
+import okhttp3.HttpUrl
 import okhttp3.Request
 import org.json.JSONObject
 import java.net.URI
@@ -14,27 +16,27 @@ import java.net.URI
  * Enjoy it !!!
  */
 class AwemeParser : HtmlParser<String, VideoInfo?> {
-    private val okHttpClient: OkHttpClient by lazy { OkHttpClient() }
 
     override fun parse(data: String): VideoInfo? {
         var request = Request.Builder().url(data).get().build();
-        var response = okHttpClient.newCall(request).execute()
+        var response = purifyClient.newCall(request).execute()
         val path = response.request().url().toString()
         val uri = URI(path)
         val ids = uri.path.split("/").filter { !it.isEmpty() }
         val videoId = ids.last()
+        val url = HttpUrl.parse(AWEME_URL)!!.newBuilder()
+                .addQueryParameter("aweme_id", videoId)
+                .addQueryParameter("app_name", "aweme")
+                .addQueryParameter("version_code", "380")
+                .addQueryParameter("version_name", "3.8.0")
+                .addQueryParameter("device_platform", "android")
+                .addQueryParameter("device_type", "Mi%20Note%202")
+                .build()
         request = Request.Builder()
-                .url("https://api.amemv.com/aweme/v1/aweme/detail/?" +
-                        "aweme_id=$videoId" +
-                        "&app_name=aweme" +
-                        "&version_code=390" +
-                        "&version_name=3.9.0" +
-                        "&device_platform=android" +
-                        "&device_type=Mi%20Note%203"
-                )
+                .url(url)
                 .get()
                 .build()
-        response = okHttpClient.newCall(request).execute()
+        response = purifyClient.newCall(request).execute()
         val body = response.body() ?: return null
         val result = body.string()
         val resultObj = JSONObject(result)

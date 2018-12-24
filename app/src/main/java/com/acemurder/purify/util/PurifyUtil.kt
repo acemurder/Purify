@@ -2,7 +2,8 @@ package com.acemurder.purify.util
 
 import android.text.TextUtils
 import android.util.Log
-import okhttp3.OkHttpClient
+import com.acemurder.purify.DEFAULT_VIDEO_SUFFIX
+import com.acemurder.purify.purifyClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
@@ -18,8 +19,6 @@ import java.security.NoSuchAlgorithmException
  */
 object PurifyUtil {
     private val TAG = "Purify.PurifyUtil"
-    val okHttpClient: OkHttpClient by lazy { OkHttpClient() }
-
 
 
     fun downloadVideo(url: String, filePath: String,
@@ -30,16 +29,16 @@ object PurifyUtil {
         if (!File(filePath).exists()) {
             File(filePath).mkdirs()
         }
-        val file = File(filePath, md5Encode(url) + ".mp4")
-        val response = okHttpClient.newCall(Request.Builder().url(url).get().build()).execute()
+        val file = File(filePath, md5Encode(url) + DEFAULT_VIDEO_SUFFIX)
+        val response = purifyClient.newCall(Request.Builder().url(url).get().build()).execute()
         val responseBody = response.body()
         responseBody?.let {
             val length = it.contentLength().toFloat()
             val inputStream = it.byteStream()
             var curSize = 0.0
             val fos = FileOutputStream(file)
-            val buffer = ByteArray(1024)
-            var size: Int = 0
+            val buffer = ByteArray(com.acemurder.purify.BUFFER_SIZE)
+            var size = 0
             while ((inputStream.read(buffer).apply { size = this }) != -1) {
                 fos.write(buffer, 0, size)
                 callback?.let {
@@ -49,6 +48,8 @@ object PurifyUtil {
                     callback(progress)
                 }
             }
+            inputStream.close()
+            fos.close()
         }
         return file.absolutePath
     }

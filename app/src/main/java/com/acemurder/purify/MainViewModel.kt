@@ -20,7 +20,10 @@ import kotlinx.coroutines.*
  */
 class MainViewModel : ViewModel() {
 
-    private val TAG = "Purify.MainViewModel"
+    companion object {
+        private const val TAG = "Purify.MainViewModel"
+    }
+
     private val _result = MutableLiveData<VideoInfo>()
     private val _progressShow = MutableLiveData<Boolean>()
     private val _errorInfo = MutableLiveData<String>()
@@ -81,7 +84,10 @@ class MainViewModel : ViewModel() {
                 val matcher = pattern.matcher(text)
                 var url: String? = null
                 if (matcher.find()) {
-                    url = matcher.group(0)
+                    val result = matcher.group(0)
+                    if (result.contains(AWEME_SIGN) || result.contains(WE_VIDEO_SIGN)) {
+                        url = result
+                    }
                 }
                 return@withContext url
             }
@@ -104,14 +110,14 @@ class MainViewModel : ViewModel() {
                     }
                 }
                 filePath?.let {
-                    _downloadProgress.value = -0f
+                    _downloadProgress.value = 0f
                     _downloadFilePath.value = filePath
                 }
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 _downloadProgress.value = 0f
                 _errorInfo.value = "下载失败，请重视"
             } finally {
-                _downloadProgress.value = -0f
+                _downloadProgress.value = 0f
             }
         }
     }
