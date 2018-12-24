@@ -3,9 +3,7 @@ package com.acemurder.purify
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -77,12 +75,14 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    .setNeutralButton("复制视频地址，不下载") { dialog, _ ->
+                    .setNeutralButton("播放视频") { dialog, _ ->
                         dialog.dismiss()
-                        val cmb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val mClipData = ClipData.newPlainText("Purify", viewModel.result.value!!.playUrl)
-                        cmb.primaryClip = mClipData
-                        Snackbar.make(rootView, "已复制", Snackbar.LENGTH_SHORT).show()
+                        startActivity(Intent(this, VideoPlayActivity::class.java)
+                                .apply { putExtra(KEY_VIDEO_URL, viewModel.result.value!!.playUrl) })
+//                        val cmb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//                        val mClipData = ClipData.newPlainText("Purify", viewModel.result.value!!.playUrl)
+//                        cmb.primaryClip = mClipData
+//                        Snackbar.make(rootView, "已复制", Snackbar.LENGTH_SHORT).show()
                     }
                     .setNegativeButton("取消") { dialog, _ ->
                         dialog.dismiss()
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             downloadFilePath.observe(this@MainActivity, Observer {
                 progressBar.visibility = View.GONE
                 val contentUri = Uri.fromFile(File(it))
-                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,contentUri)
+                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, contentUri)
                 sendBroadcast(mediaScanIntent)
                 Snackbar.make(rootView, "视频下载成功，路径: $it", Snackbar.LENGTH_LONG).show()
             })

@@ -20,6 +20,7 @@ const val AWEME_URL = "https://api.amemv.com/aweme/v1/aweme/detail/"
 const val WE_VIDEO_URL = "https://h5.weishi.qq.com/webapp/json/weishi/WSH5GetPlayPage"
 const val AWEME_SIGN = "douyin.com"
 const val WE_VIDEO_SIGN = "weishi.qq.com"
+const val KEY_VIDEO_URL = "video_url"
 
 val purifyClient: OkHttpClient by lazy {
     val client = OkHttpClient.Builder()
