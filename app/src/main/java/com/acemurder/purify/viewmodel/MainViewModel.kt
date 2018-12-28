@@ -1,15 +1,18 @@
-package com.acemurder.purify
+package com.acemurder.purify.viewmodel
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
 import android.util.Log
 import android.util.Patterns
+import com.acemurder.purify.AWEME_SIGN
+import com.acemurder.purify.WE_VIDEO_SIGN
 import com.acemurder.purify.model.VideoInfo
-import com.acemurder.purify.parser.AwemeParser
-import com.acemurder.purify.util.ParseUtil
+import com.acemurder.purify.parser.EmptyParser
+import com.acemurder.purify.util.PurifyParser
 import com.acemurder.purify.util.PurifyUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -18,7 +21,7 @@ import kotlinx.coroutines.*
  * Created for : Purify.
  * Enjoy it !!!
  */
-class MainViewModel : ViewModel() {
+class MainViewModel : BaseViewModel() {
 
     companion object {
         private const val TAG = "Purify.MainViewModel"
@@ -45,12 +48,8 @@ class MainViewModel : ViewModel() {
         get() = _downloadProgress
 
 
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-
     init {
-        ParseUtil.setParser(AwemeParser())
+        PurifyParser.setParser(EmptyParser())
     }
 
     override fun onCleared() {
@@ -60,14 +59,14 @@ class MainViewModel : ViewModel() {
 
     fun loadData(url: String) {
         _progressShow.value = true
-        uiScope.launch {
+        launch {
             try {
-                val v = ParseUtil.getVideoInfo(url)
+                val v = PurifyParser.getVideoInfo(url)
                 v?.let {
                     _result.value = it
                 }
                 v ?: let {
-                    _errorInfo.value = "没有解析到视频信息，该地址支持解析"
+                    _errorInfo.value = "没有解析到视频信息，该地址不支持解析"
                 }
             } catch (e: Exception) {
                 _errorInfo.value = "解析出错，请检查url"
@@ -78,7 +77,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun parse(text: String) {
-        uiScope.launch {
+        launch {
             val url = withContext(Dispatchers.IO) {
                 val pattern = Patterns.WEB_URL
                 val matcher = pattern.matcher(text)
@@ -102,7 +101,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun downloadFile(url: String, fileDir: String) {
-        uiScope.launch {
+        launch {
             try {
                 val filePath = withContext(Dispatchers.IO) {
                     return@withContext PurifyUtil.downloadVideo(url, fileDir) {

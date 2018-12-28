@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
  * Created for : Purify.
  * Enjoy it !!!
  */
-object ParseUtil {
+object PurifyParser {
     private var htmlParser: HtmlParser<String, VideoInfo?> = EmptyParser()
     private val awemeParser: HtmlParser<String, VideoInfo?> by lazy { AwemeParser() }
     private val weVideoParser: HtmlParser<String, VideoInfo?> by lazy { WeVideoParser() }

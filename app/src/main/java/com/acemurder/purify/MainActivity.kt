@@ -3,7 +3,9 @@ package com.acemurder.purify
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +22,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import com.acemurder.purify.util.PermissionManager
 import com.acemurder.purify.util.storagePermission
+import com.acemurder.purify.viewmodel.MainViewModel
 import com.bumptech.glide.Glide
 import java.io.File
 
@@ -75,14 +78,14 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    .setNeutralButton("播放视频") { dialog, _ ->
+                    .setNeutralButton("复制链接到剪切板") { dialog, _ ->
                         dialog.dismiss()
-                        startActivity(Intent(this, VideoPlayActivity::class.java)
-                                .apply { putExtra(KEY_VIDEO_URL, viewModel.result.value!!.playUrl) })
-//                        val cmb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-//                        val mClipData = ClipData.newPlainText("Purify", viewModel.result.value!!.playUrl)
-//                        cmb.primaryClip = mClipData
-//                        Snackbar.make(rootView, "已复制", Snackbar.LENGTH_SHORT).show()
+//                        startActivity(Intent(this, VideoPlayActivity::class.java)
+//                                .apply { putExtra(KEY_VIDEO_URL, viewModel.result.value!!.playUrl) })
+                        val cmb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val mClipData = ClipData.newPlainText("Purify", viewModel.result.value!!.playUrl)
+                        cmb.primaryClip = mClipData
+                        Snackbar.make(rootView, "已复制", Snackbar.LENGTH_SHORT).show()
                     }
                     .setNegativeButton("取消") { dialog, _ ->
                         dialog.dismiss()
